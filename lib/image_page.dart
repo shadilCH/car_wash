@@ -22,4 +22,6 @@ class imagePage{
   static const addimage="images/add image.png";
   static const card1="images/card png.png";
   static const order="images/Rectangle 37.jpg";
+  static const google="images/icons8-google.svg";
+
 }

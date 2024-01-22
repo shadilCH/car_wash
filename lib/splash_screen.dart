@@ -1,3 +1,4 @@
+import 'package:car_wash/Navigation_bar.dart';
 import 'package:car_wash/color_page.dart';
 import 'package:car_wash/first_page.dart';
 import 'package:car_wash/home_page.dart';
@@ -21,9 +22,11 @@ class _splashScreenState extends State<splashScreen> {
     SharedPreferences _share=await SharedPreferences.getInstance();
 
     login=_share.getBool("login")??false;
+    currentuserid=_share.getString("id")??"";
+    currentusername=_share.getString("name")??"";
     Future.delayed(Duration(
         seconds: 2
-    )).then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => login?homePage():firstPage(),)));
+    )).then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => login?navigationPage():firstPage(),)));
     setState(() {
 
     });

@@ -1,5 +1,6 @@
 import 'package:car_wash/color_page.dart';
 import 'package:car_wash/first_page.dart';
+import 'package:car_wash/home_page.dart';
 import 'package:car_wash/image_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +67,7 @@ class _profilePageState extends State<profilePage> {
                           SizedBox(
                             height: width*0.03,
                           ),
-                          Text("Shadil",style:
+                          Text("$currentusername",style:
                             GoogleFonts.muktaVaani(
                               color: colorPage.primerycolor,
                               fontSize: width*0.05,

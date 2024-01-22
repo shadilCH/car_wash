@@ -9,10 +9,13 @@ import 'package:car_wash/pro_wash.dart';
 import 'package:car_wash/quick_wash.dart';
 import 'package:car_wash/slot_page.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -25,6 +28,10 @@ class homePage extends StatefulWidget {
   @override
   State<homePage> createState() => _homePageState();
 }
+String? currentusername;
+String? currentpassword;
+String? currentemail;
+String? currentuserid;
 bool login=false;
 class _homePageState extends State<homePage> {
   List theme = [
@@ -58,16 +65,18 @@ class _homePageState extends State<homePage> {
       // backgroundColor: colorPage.secondarycolor,
       appBar: AppBar(
         backgroundColor: colorPage.secondarycolor,
-        leading: Icon(
-          Icons.menu,
-          color: colorPage.primerycolor,
-          size: width * 0.08,
-        ),
+        // leading: Icon(
+        //   Icons.menu,
+        //   color: colorPage.primerycolor,
+        //   size: width * 0.08,
+        // ),
+        title: Text("Hello,$currentusername",style: TextStyle(color: colorPage.primerycolor,fontSize: width*0.05)),
         actions: [
           IconButton(
               onPressed: () async {
-                SharedPreferences _pref = await SharedPreferences.getInstance();
-                _pref.remove("login");
+                GoogleSignIn().signOut();
+                SharedPreferences _share = await SharedPreferences.getInstance();
+                _share.clear();
                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder:(context) => loginPage(),), (route) => false);
               },
               icon: Icon(Icons.logout,color: colorPage.primerycolor,)),
@@ -229,44 +238,61 @@ class _homePageState extends State<homePage> {
                     fontSize: width * 0.065,
                     fontWeight: FontWeight.w600,
                   )),
-              CarouselSlider.builder(
-                itemCount: 3,
-                options: CarouselOptions(
-                  onPageChanged: (index, reason) {
-                    selectindex = index;
-                    setState(() {});
-                  },
-                  autoPlay: true,
-                  autoPlayAnimationDuration: Duration(milliseconds: 10),
-                  viewportFraction: 1,
-                ),
-                itemBuilder: (BuildContext context, int index, int realIndex) {
-                  return Container(
-                    height: width * 0.423,
-                    width: width * 1,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(width * 0.03),
-                    ),
-                    child: Image.asset(
-                      imagePage.poster,
-                    ),
-                  );
-                },
-              ),
-              // SizedBox(
-              // height: width*0.02,
-              // ),
-              Center(
-                child: AnimatedSmoothIndicator(
-                  activeIndex: selectindex,
-                  count: 3,
-                  effect: ExpandingDotsEffect(
-                    activeDotColor: colorPage.primerycolor,
-                    dotColor: colorPage.color1,
-                    dotWidth: width * 0.02,
-                    dotHeight: width * 0.02,
+              StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance.collection("banner").doc("image").snapshots(),
+                builder: (context, snapshot) {
+                  if(!snapshot.hasData){
+                    return Center(child: CircularProgressIndicator(),);
+                  }
+                  var data =snapshot.data;
+                  List banner=data!["image"];
+                  return banner.length==0?SizedBox():
+                  Column(
+                    children: [
+                      CarouselSlider.builder(
+                        itemCount: banner.length,
+                        options: CarouselOptions(
+                          onPageChanged: (index, reason) {
+                            selectindex = index;
+                            setState(() {});
+                          },
+                          autoPlay: true,
+                          autoPlayAnimationDuration: Duration(milliseconds: 10),
+                          viewportFraction: 1,
+                        ),
+                        itemBuilder: (BuildContext context, int index, int realIndex) {
+                          return Container(
+                            height: width * 0.423,
+                            width: width * 1,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(width * 0.03),
+                            ),
+                            child: Image(
+                              image:NetworkImage(
+                                banner[index]
+                              ),fit: BoxFit.cover,
+                            ),
+                          );
+                        },
+                      ),
+                  SizedBox(
+                    height: width*0.03,
                   ),
-                ),
+                  AnimatedSmoothIndicator(
+                  activeIndex: selectindex,
+                  count: banner.length,
+                  effect: ExpandingDotsEffect(
+                  activeDotColor: colorPage.primerycolor,
+                  dotColor: colorPage.color1,
+                  dotWidth: width * 0.02,
+                  dotHeight: width * 0.02,
+                  ),
+                  ),
+                    ],
+                  );
+
+
+                }
               ),
               SizedBox(
                 height: width * 0.03,

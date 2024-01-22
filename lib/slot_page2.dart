@@ -1,5 +1,6 @@
 import 'package:car_wash/color_page.dart';
 import 'package:car_wash/confirmation_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +8,11 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 
 class slotPage2 extends StatefulWidget {
-  const slotPage2({super.key});
-
+  final Map<String,dynamic> slotbooking;
+  const slotPage2({super.key, required this.slotbooking});
   @override
   State<slotPage2> createState() => _slotPage2State();
 }
-
 class _slotPage2State extends State<slotPage2> {
   int selectindex=0;
   List time=[
@@ -25,6 +25,9 @@ class _slotPage2State extends State<slotPage2> {
     "03:00pm",
     "04:00pm",
   ];
+
+  TextEditingController note_controller=TextEditingController();
+  TextEditingController location_controller=TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +182,7 @@ class _slotPage2State extends State<slotPage2> {
               Padding(
                 padding:  EdgeInsets.all(width*0.03),
                 child: TextFormField(
+                  controller: note_controller,
                   keyboardType: TextInputType.multiline,
                   maxLines: 5,
                   style: TextStyle(
@@ -203,6 +207,7 @@ class _slotPage2State extends State<slotPage2> {
               Padding(
                 padding:  EdgeInsets.all(width*0.03),
                 child: TextFormField(
+                  controller: location_controller,
                   keyboardType: TextInputType.text,
                   maxLines: 1,
                   style: TextStyle(
@@ -241,7 +246,30 @@ class _slotPage2State extends State<slotPage2> {
               SizedBox(height: width*0.08),
               InkWell(
                 onTap: () {
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => confirmationPage(),));
+                  if(
+                  location_controller.text!=""
+                  ){
+                    print(widget.slotbooking);
+                    widget.slotbooking.addAll(
+                        {
+                          "slot_date":"19/1/2024",
+                          "slot_time":time[selectindex],
+                          "note":note_controller.text,
+                          "location":location_controller.text,
+
+                        }
+                    );
+
+
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => confirmationPage(
+
+                        slotbooking:widget.slotbooking
+                    ),));
+                  }else{
+                    location_controller.text==""?ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("enter your location"))):
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Take your slot")));
+                  }
+
                 },
                 child: Center(
                   child: Container(
